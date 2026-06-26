@@ -10,7 +10,7 @@ const brokenNormals = ['mesh_0', 'mesh_0_4', 'mesh_0_5', 'mesh_0_6', 'mesh_0_7',
 
 const modelURL = '/bathroom.glb';
 const canvas = document.getElementById('canvas') as HTMLCanvasElement;
-const viewer3D = new Viewer3D({ canvas });
+const viewer3D = new Viewer3D({ canvas, enablePostProcessing: true, showFPS: true });
 await viewer3D.init();
 
 // Scene Config
@@ -56,11 +56,15 @@ viewer3D.loadModel(modelURL)
 // GUI
 const params = {
   postprocessing: viewer3D.enablePostProcessing,
+  adaptiveResolution: viewer3D.adaptiveResolution.isEnabled,
 };
 
 const gui = new GUI();
 gui.add(params, 'postprocessing').onChange((enable) => {
   viewer3D.enablePostProcessing = enable;
+});
+gui.add(params, 'adaptiveResolution').name('adaptive resolution').onChange((enable) => {
+  viewer3D.adaptiveResolution.setEnabled(enable);
 });
 
 function resize() {

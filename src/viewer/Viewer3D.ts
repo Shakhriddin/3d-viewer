@@ -16,8 +16,9 @@ import { ViewerControls } from '@/controls';
 import { SceneLights } from '@/environment';
 import { GLBLoader } from '@/loaders';
 import { RenderGraph } from '@/render-graph';
+import { AdaptiveResolution } from './AdaptiveResolution.ts';
 import { getDevicePixelRatio } from './utils.ts';
-import { MAX_PIXEL_RATIO } from './constants.ts';
+import { ADAPTIVE_RESOLUTION, MAX_PIXEL_RATIO, MIN_PIXEL_RATIO } from './constants.ts';
 import type { CanvasSize } from './types.ts';
 
 Mesh.prototype.raycast = acceleratedRaycast;
@@ -25,6 +26,8 @@ Raycaster.prototype.firstHitOnly = true;
 
 export type Viewer3DOptions = {
   canvas: HTMLCanvasElement;
+  enablePostProcessing?: boolean;
+  showFPS?: boolean;
 }
 
 export class Viewer3D extends EventDispatcher {
@@ -38,7 +41,8 @@ export class Viewer3D extends EventDispatcher {
   public sceneLights!: SceneLights;
   public stats?: Stats;
   public renderGraph!: RenderGraph;
-  public enablePostProcessing = true;
+  public adaptiveResolution!: AdaptiveResolution;
+  public enablePostProcessing: boolean = true;
 
   constructor(options: Viewer3DOptions) {
     super();
@@ -69,6 +73,13 @@ export class Viewer3D extends EventDispatcher {
     this.renderer.shadowMap.enabled = true;
     this.renderer.outputColorSpace = SRGBColorSpace;
     this.renderer.toneMapping = AgXToneMapping;
+
+    this.adaptiveResolution = new AdaptiveResolution(this.renderer, {
+      ...ADAPTIVE_RESOLUTION,
+      minPixelRatio: Math.min(getDevicePixelRatio(), MIN_PIXEL_RATIO),
+      maxPixelRatio: Math.min(getDevicePixelRatio(), MAX_PIXEL_RATIO),
+    });
+
     this.renderer.setAnimationLoop(this.animate.bind(this));
     this.resize(size);
 
@@ -80,9 +91,16 @@ export class Viewer3D extends EventDispatcher {
     // Loader
     this.loader = new GLBLoader(this.renderer);
 
-    this.stats = new Stats();
-    this.stats.dom.style.userSelect = 'none';
-    this.options.canvas.parentElement?.append(this.stats.dom);
+
+    if (this.options.enablePostProcessing !== undefined) {
+      this.enablePostProcessing = this.options.enablePostProcessing;
+    }
+
+    if (this.options.showFPS) {
+      this.stats = new Stats();
+      this.stats.dom.style.userSelect = 'none';
+      this.options.canvas.parentElement?.append(this.stats.dom);
+    }
   }
 
   public async loadModel(url: string) {
@@ -115,7 +133,7 @@ export class Viewer3D extends EventDispatcher {
   }
 
   public resize({ width, height }: CanvasSize) {
-    this.renderer.setPixelRatio(Math.min(getDevicePixelRatio(), MAX_PIXEL_RATIO));
+    this.adaptiveResolution.setMaxPixelRatio(Math.min(getDevicePixelRatio(), MAX_PIXEL_RATIO));
     this.renderer.setSize(width, height);
 
     this.camera.aspect = width / height;
@@ -129,6 +147,7 @@ export class Viewer3D extends EventDispatcher {
 
     // update controls
     this.controls.update(this.timer.getDelta());
+    this.adaptiveResolution.update();
 
     // render scene
     if (this.enablePostProcessing) {

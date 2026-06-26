@@ -14,5 +14,5 @@ export const DEFAULT_AO_PARAMS: AOParams = {
 export const DEFAULT_BLOOM_PARAMS: BloomParams = {
   radius: 0,
   strength: 0.3,
-  threshold: 0.
+  threshold: 0,
 };

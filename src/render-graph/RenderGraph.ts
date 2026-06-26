@@ -24,8 +24,8 @@ import {
 import TRAANode, { traa } from 'three/examples/jsm/tsl/display/TRAANode.js';
 import GTAONode, { ao } from 'three/examples/jsm/tsl/display/GTAONode.js';
 import BloomNode, { bloom } from 'three/examples/jsm/tsl/display/BloomNode.js';
-import type { PassOptions } from '@/render-graph/types.ts';
 import { DEFAULT_AO_PARAMS, DEFAULT_BLOOM_PARAMS } from '@/render-graph/constants.ts';
+import type { PassOptions } from '@/render-graph/types.ts';
 
 export class RenderGraph {
   private renderPipeline: RenderPipeline;
@@ -107,12 +107,14 @@ export class RenderGraph {
     aoPass.distanceFallOff.value = aoParams.distanceFallOff;
     aoPass.distanceExponent.value = aoParams.distanceExponent;
     aoPass.useTemporalFiltering = aoParams.useTemporalFiltering;
+    aoPass.name = 'AOPass';
 
     return aoPass;
   }
 
   private buildBloomPass(emissive: TextureNode, bloomParams = DEFAULT_BLOOM_PARAMS) {
     const bloomPass = bloom(emissive, bloomParams.strength, bloomParams.radius, bloomParams.threshold);
+    bloomPass.name = 'BloomPass';
 
     return bloomPass;
   }
