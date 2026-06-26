@@ -10,10 +10,12 @@ import {
   Timer,
   WebGPURenderer
 } from 'three/webgpu';
+import Stats from 'three/examples/jsm/libs/stats.module.js';
 import { acceleratedRaycast, CENTER, MeshBVH } from 'three-mesh-bvh';
 import { ViewerControls } from '@/controls';
 import { SceneLights } from '@/environment';
 import { GLBLoader } from '@/loaders';
+import { RenderGraph } from '@/render-graph';
 import { getDevicePixelRatio } from './utils.ts';
 import { MAX_PIXEL_RATIO } from './constants.ts';
 import type { CanvasSize } from './types.ts';
@@ -34,6 +36,9 @@ export class Viewer3D extends EventDispatcher {
   public loader!: GLBLoader;
   public timer: Timer;
   public sceneLights!: SceneLights;
+  public stats?: Stats;
+  public renderGraph!: RenderGraph;
+  public enablePostProcessing = true;
 
   constructor(options: Viewer3DOptions) {
     super();
@@ -59,7 +64,7 @@ export class Viewer3D extends EventDispatcher {
     this.sceneLights = new SceneLights(this.scene);
 
     // Renderer
-    this.renderer = new WebGPURenderer({ canvas: this.options.canvas });
+    this.renderer = new WebGPURenderer({ canvas: this.options.canvas, antialias: false });
     this.renderer.autoClear = true;
     this.renderer.shadowMap.enabled = true;
     this.renderer.outputColorSpace = SRGBColorSpace;
@@ -69,8 +74,15 @@ export class Viewer3D extends EventDispatcher {
 
     await this.renderer.init();
 
+    // Render Graph
+    this.renderGraph = new RenderGraph(this.renderer, this.scene, this.camera);
+
     // Loader
     this.loader = new GLBLoader(this.renderer);
+
+    this.stats = new Stats();
+    this.stats.dom.style.userSelect = 'none';
+    this.options.canvas.parentElement?.append(this.stats.dom);
   }
 
   public async loadModel(url: string) {
@@ -112,13 +124,20 @@ export class Viewer3D extends EventDispatcher {
 
 
   private animate() {
+    this.stats?.begin();
     this.timer.update();
 
     // update controls
     this.controls.update(this.timer.getDelta());
 
     // render scene
-    this.renderer.render(this.scene, this.camera);
+    if (this.enablePostProcessing) {
+      this.renderGraph.render();
+    } else {
+      this.renderer.render(this.scene, this.camera);
+    }
+
+    this.stats?.end();
   }
 
   private getCanvasSize(): CanvasSize {

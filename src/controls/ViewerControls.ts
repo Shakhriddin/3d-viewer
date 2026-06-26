@@ -38,8 +38,8 @@ export class ViewerControls extends CameraControls {
     super(camera, domElement);
 
     this.mouseButtons.left = CameraControls.ACTION.ROTATE;
-    this.mouseButtons.right = CameraControls.ACTION.SCREEN_PAN; //.ROTATE
-    this.touches.two = CameraControls.ACTION.TOUCH_SCREEN_PAN;
+    this.mouseButtons.right = CameraControls.ACTION.ROTATE;
+    this.touches.two = CameraControls.ACTION.TOUCH_DOLLY;
     this.minDistance = MIN_DISTANCE;
     this.maxDistance = MAX_DISTANCE;
     this.maxPolarAngle = MAX_POLAR_ANGLE;
