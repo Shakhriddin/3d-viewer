@@ -2,6 +2,10 @@ import './style.css';
 import { Viewer3D } from '@/viewer';
 import { sceneConfig } from './scene-config.ts';
 import type { LightBase, LightTypes } from '@/environment';
+import type { Mesh } from 'three/webgpu';
+
+// Meshes with incorrect faced normals, remove it after 3D model fix
+const brokenNormals = ['mesh_0', 'mesh_0_4', 'mesh_0_5', 'mesh_0_6', 'mesh_0_7', 'mesh_0_9', 'mesh_0_14', 'mesh_0_16', 'mesh_0_17', 'mesh_0_55', 'mesh_0_27', 'mesh_0_49', 'mesh_0_21', 'mesh_0_34'];
 
 const modelURL = '/bathroom.glb';
 const canvas = document.getElementById('canvas') as HTMLCanvasElement;
@@ -23,7 +27,20 @@ lights.forEach((light) => {
 
 
 // Load 3D Model
-viewer3D.loadModel(modelURL);
+viewer3D.loadModel(modelURL)
+  .then((gltf) => {
+    if (gltf) {
+      gltf.scene.traverse((node) => {
+        const mesh = node as Mesh;
+
+        // remove broken normals, but should be fixed in Blender by 3D artists
+        if (brokenNormals.includes(mesh.name)) {
+          mesh.geometry.deleteAttribute('normal');
+          mesh.geometry.computeVertexNormals();
+        }
+      });
+    }
+  });
 
 function resize() {
   const width = window.innerWidth;

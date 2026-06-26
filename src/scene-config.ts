@@ -32,7 +32,7 @@ const lights = [
   {
     type: 'spot',
     color: '#ffffff',
-    intensity: Math.PI,
+    intensity: Math.PI * 2,
     distance: 4,
     angle: 1.2,
     penumbra: 1,
