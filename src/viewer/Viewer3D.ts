@@ -3,7 +3,6 @@ import {
   EventDispatcher,
   Material,
   Mesh,
-  PCFSoftShadowMap,
   PerspectiveCamera,
   Raycaster,
   Scene,
@@ -65,7 +64,6 @@ export class Viewer3D extends EventDispatcher {
     this.renderer.shadowMap.enabled = true;
     this.renderer.outputColorSpace = SRGBColorSpace;
     this.renderer.toneMapping = AgXToneMapping;
-    this.renderer.shadowMap.type = PCFSoftShadowMap;
     this.renderer.setAnimationLoop(this.animate.bind(this));
     this.resize(size);
 

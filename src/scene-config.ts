@@ -47,8 +47,8 @@ const lights = [
       y: 0,
       z: -0.03917110711797923
     },
-    receiveShadow: true,
-    shadowMap: {
+    shadowParams: {
+      receiveShadow: true,
       width: 1024,
       height: 1024,
       bias: -0.004,

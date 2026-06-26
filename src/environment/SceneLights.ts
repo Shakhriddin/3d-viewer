@@ -5,7 +5,6 @@ import type { LightBase, LightTypes } from './types';
 
 RectAreaLightNode.setLTC(RectAreaLightTexturesLib.init());
 
-
 export class SceneLights {
   private createdLights: Light[] = [];
   private scene: Scene;
@@ -17,8 +16,6 @@ export class SceneLights {
   createLight(light: LightBase<LightTypes>) {
     if (isReactAreaLight(light)) {
       const rectAreaLight = new RectAreaLight(light.color, light.intensity, light.width, light.height);
-      rectAreaLight.castShadow = light.receiveShadow ?? false;
-      rectAreaLight.receiveShadow = light.receiveShadow ?? false;
       rectAreaLight.position.copy(light.position);
 
       if (light.target) {
@@ -31,15 +28,15 @@ export class SceneLights {
 
     if (isSpotLight(light)) {
       const spotLight = new SpotLight(light.color, light.intensity, light.distance, light.angle, light.penumbra, light.decay);
-      spotLight.castShadow = light.receiveShadow ?? false;
-      spotLight.receiveShadow = light.receiveShadow ?? false;
       spotLight.position.copy(light.position);
 
-      if (light.shadowMap) {
-        spotLight.shadow.mapSize.width = light.shadowMap.width;
-        spotLight.shadow.mapSize.height = light.shadowMap.height;
-        spotLight.shadow.bias = light.shadowMap.bias ?? 0;
-        spotLight.shadow.normalBias = light.shadowMap.normalBias ?? 0;
+      if (light.shadowParams) {
+        spotLight.castShadow = light.shadowParams.receiveShadow ?? false;
+        spotLight.receiveShadow = light.shadowParams.receiveShadow ?? false;
+        spotLight.shadow.mapSize.width = light.shadowParams.width;
+        spotLight.shadow.mapSize.height = light.shadowParams.height;
+        spotLight.shadow.bias = light.shadowParams.bias ?? 0;
+        spotLight.shadow.normalBias = light.shadowParams.normalBias ?? 0;
       }
 
       if (light.target) {

@@ -1,11 +1,13 @@
 import type { ColorRepresentation, Vector3Like } from 'three/webgpu';
 
-type ShadowMapParams = {
+type ShadowParams = {
   width: number;
   height: number;
   bias?: number;
   normalBias?: number;
   intensity?: number;
+  castShadow?: boolean;
+  receiveShadow?: boolean;
 }
 
 export type LightTypes = 'react-area' | 'spot';
@@ -16,9 +18,7 @@ export type LightBase<T extends LightTypes> = {
   target?: Vector3Like;
   intensity?: number;
   color?: ColorRepresentation;
-  castShadow?: boolean;
-  receiveShadow?: boolean;
-  shadowMap?: ShadowMapParams;
+  shadowParams?: ShadowParams;
 }
 
 export type ReactAreaParams = LightBase<'react-area'> & {
