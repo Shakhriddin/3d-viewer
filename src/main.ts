@@ -41,7 +41,7 @@ viewer3D.loadModel(modelURL)
       const cubeTexture = viewer3D.sceneEnvironment.cubeTexture;
       gltf.scene.traverse((node) => {
         const mesh = node as Mesh<BufferGeometry, MeshPhysicalMaterial>;
-        const material = mesh.material;
+        let material = mesh.material;
 
         if (mesh.isMesh) {
           // remove broken normals, but should be fixed in Blender by 3D artists
@@ -51,6 +51,7 @@ viewer3D.loadModel(modelURL)
           }
 
           // To fix problem with transparent meshes
+          material.forceSinglePass = !material.transparent;
           if (material.transparent) {
             material.alphaHash = false;
             material.depthWrite = true;
