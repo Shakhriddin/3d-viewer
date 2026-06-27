@@ -18,14 +18,13 @@ import {
   sample,
   screenUV,
   unpackRGBToNormal,
-  vec3,
   velocity
 } from 'three/tsl';
 import TRAANode, { traa } from 'three/examples/jsm/tsl/display/TRAANode.js';
 import GTAONode, { ao } from 'three/examples/jsm/tsl/display/GTAONode.js';
 import BloomNode, { bloom } from 'three/examples/jsm/tsl/display/BloomNode.js';
-import { DEFAULT_AO_PARAMS, DEFAULT_BLOOM_PARAMS } from '@/render-graph/constants.ts';
-import type { PassOptions } from '@/render-graph/types.ts';
+import { DEFAULT_AO_PARAMS, DEFAULT_BLOOM_PARAMS } from './constants.ts';
+import type { PassOptions } from './types.ts';
 
 export class RenderGraph {
   private renderPipeline: RenderPipeline;
@@ -54,7 +53,7 @@ export class RenderGraph {
     this.scenePass.contextNode = builtinAOContext(aoPassColor);
 
     this.bloomPass = this.buildBloomPass(passEmissive, options?.bloom);
-    const outputNode = scenePassColor.mul(vec3(aoPassColor)).add(this.bloomPass);
+    const outputNode = scenePassColor.add(this.bloomPass);
 
     this.traaPass = traa(outputNode, passDepth, passVelocity, camera);
     this.traaPass.useSubpixelCorrection = false;

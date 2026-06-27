@@ -2,7 +2,7 @@ import type { AOParams, BloomParams } from './types';
 
 export const DEFAULT_AO_PARAMS: AOParams = {
   resolutionScale: 0.5,
-  scale: 0.5,
+  scale: 1.0,
   radius: 0.1,
   samples: 8,
   thickness: 1.0,

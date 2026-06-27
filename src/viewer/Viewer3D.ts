@@ -13,7 +13,7 @@ import {
 import Stats from 'three/examples/jsm/libs/stats.module.js';
 import { acceleratedRaycast, CENTER, MeshBVH } from 'three-mesh-bvh';
 import { ViewerControls } from '@/controls';
-import { SceneLights } from '@/environment';
+import { SceneEnvironment } from '@/environment';
 import { GLBLoader } from '@/loaders';
 import { RenderGraph } from '@/render-graph';
 import { AdaptiveResolution } from './AdaptiveResolution.ts';
@@ -38,7 +38,7 @@ export class Viewer3D extends EventDispatcher {
   public controls!: ViewerControls;
   public loader!: GLBLoader;
   public timer: Timer;
-  public sceneLights!: SceneLights;
+  public sceneEnvironment!: SceneEnvironment;
   public stats?: Stats;
   public renderGraph!: RenderGraph;
   public adaptiveResolution!: AdaptiveResolution;
@@ -65,7 +65,7 @@ export class Viewer3D extends EventDispatcher {
     this.scene = new Scene();
 
     // Lights
-    this.sceneLights = new SceneLights(this.scene);
+    this.sceneEnvironment = new SceneEnvironment(this.scene);
 
     // Renderer
     this.renderer = new WebGPURenderer({ canvas: this.options.canvas, antialias: false });
@@ -90,7 +90,6 @@ export class Viewer3D extends EventDispatcher {
 
     // Loader
     this.loader = new GLBLoader(this.renderer);
-
 
     if (this.options.enablePostProcessing !== undefined) {
       this.enablePostProcessing = this.options.enablePostProcessing;

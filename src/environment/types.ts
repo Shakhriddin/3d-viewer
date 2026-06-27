@@ -32,3 +32,10 @@ export type SpotLightParams = LightBase<'spot'> & {
   distance: number;
   penumbra: number;
 }
+
+export type CubeCameraParams = {
+  resolution: number;
+  near: number;
+  far: number;
+  position?: Vector3Like;
+}

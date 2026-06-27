@@ -1,13 +1,20 @@
-import { Light, RectAreaLight, RectAreaLightNode, Scene, SpotLight, } from 'three/webgpu';
+import {
+  CubeCamera, CubeReflectionMapping, CubeRenderTarget,
+  HalfFloatType, Light, LinearFilter, LinearMipmapLinearFilter, RectAreaLight, RectAreaLightNode, Scene, SpotLight,
+  WebGPURenderer,
+} from 'three/webgpu';
 import { RectAreaLightTexturesLib } from 'three/examples/jsm/lights/RectAreaLightTexturesLib.js';
 import { isReactAreaLight, isSpotLight } from './utils';
-import type { LightBase, LightTypes } from './types';
+import { DEFAULT_CUBE_CAMERA } from './constants.ts';
+import type { CubeCameraParams, LightBase, LightTypes } from './types';
 
 RectAreaLightNode.setLTC(RectAreaLightTexturesLib.init());
 
-export class SceneLights {
+export class SceneEnvironment {
   private createdLights: Light[] = [];
   private scene: Scene;
+  public cubeRenderTarget?: CubeRenderTarget;
+  public cubeCamera?: CubeCamera;
 
   constructor(scene: Scene) {
     this.scene = scene;
@@ -57,5 +64,37 @@ export class SceneLights {
     });
 
     this.createdLights = [];
+  }
+
+  get cubeTexture() {
+    return this.cubeRenderTarget?.texture;
+  }
+
+  public createCubeCamera(options: Partial<CubeCameraParams> = {}) {
+    const near = options.resolution ?? DEFAULT_CUBE_CAMERA.near;
+    const far = options.resolution ?? DEFAULT_CUBE_CAMERA.far;
+    const resolution = options.resolution ?? DEFAULT_CUBE_CAMERA.resolution;
+
+    this.cubeRenderTarget = new CubeRenderTarget(resolution, {
+      type: HalfFloatType,
+      minFilter: LinearMipmapLinearFilter,
+      magFilter: LinearFilter,
+      mapping: CubeReflectionMapping,
+      generateMipmaps: true
+    });
+
+    this.cubeCamera = new CubeCamera(near, far, this.cubeRenderTarget);
+
+    if (options.position) {
+      this.cubeCamera.position.copy(options.position);
+    }
+
+    this.scene.environment = this.cubeRenderTarget.texture;
+  }
+
+  public updateCubeCamera(renderer: WebGPURenderer) {
+    if (this.cubeCamera) {
+      this.cubeCamera.update(renderer, this.scene);
+    }
   }
 }

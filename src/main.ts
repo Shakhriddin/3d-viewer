@@ -1,6 +1,7 @@
 import './style.css';
-import type { BufferGeometry, Mesh, MeshPhysicalMaterial } from 'three/webgpu';
-import type { LightBase, LightTypes } from '@/environment';
+import { type BufferGeometry, type Mesh, type MeshPhysicalMaterial, Vector3 } from 'three/webgpu';
+import { type LightBase, type LightTypes, parallaxCorrectFn } from '@/environment';
+import { pmremTexture, reflectVector } from 'three/tsl';
 import GUI from 'three/examples/jsm/libs/lil-gui.module.min.js';
 import { Viewer3D } from '@/viewer';
 import { sceneConfig } from './scene-config.ts';
@@ -14,7 +15,7 @@ const viewer3D = new Viewer3D({ canvas, enablePostProcessing: true, showFPS: tru
 await viewer3D.init();
 
 // Scene Config
-const { camera, lights } = sceneConfig;
+const { camera, lights, cubeCamera } = sceneConfig;
 
 viewer3D.controls.setLookAt(
   camera.position.x, camera.position.y, camera.position.z,
@@ -23,14 +24,21 @@ viewer3D.controls.setLookAt(
 );
 
 lights.forEach((light) => {
-  viewer3D.sceneLights.createLight(light as LightBase<LightTypes>);
+  viewer3D.sceneEnvironment.createLight(light as LightBase<LightTypes>);
 });
 
+const cubePosition = new Vector3().copy(cubeCamera.position);
+const cubeSize = new Vector3().copy(cubeCamera.size);
+
+viewer3D.sceneEnvironment.createCubeCamera(cubeCamera);
 
 // Load 3D Model
 viewer3D.loadModel(modelURL)
   .then((gltf) => {
+    removePageLoader();
+
     if (gltf) {
+      const cubeTexture = viewer3D.sceneEnvironment.cubeTexture;
       gltf.scene.traverse((node) => {
         const mesh = node as Mesh<BufferGeometry, MeshPhysicalMaterial>;
         const material = mesh.material;
@@ -48,10 +56,22 @@ viewer3D.loadModel(modelURL)
             material.depthWrite = true;
             material.needsUpdate = true;
           }
+
+          const shouldProject = material.transparent || material.roughness < 1 || material.metalness > 0;
+          if (cubeTexture && shouldProject) {
+            material.envNode = pmremTexture(cubeTexture, parallaxCorrectFn(reflectVector, cubeSize, cubePosition));
+          }
         }
       });
+
+      viewer3D.sceneEnvironment.updateCubeCamera(viewer3D.renderer);
     }
   });
+
+function removePageLoader() {
+  const element = document.getElementById('loader');
+  element?.remove();
+}
 
 // GUI
 const params = {

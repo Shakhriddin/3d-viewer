@@ -76,7 +76,21 @@ const lights = [
   }
 ];
 
+const cubeCamera = {
+  position: {
+    x: 0.09654927253723145,
+    y: 1.4052783157676458,
+    z: 0.30609771609306335,
+  },
+  size: {
+    x: 2.2272696495056157,
+    y: 2.8105566315352917,
+    z: 2.3172813057899475,
+  }
+};
+
 export const sceneConfig = {
   camera,
   lights,
+  cubeCamera,
 };
