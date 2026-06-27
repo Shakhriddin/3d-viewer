@@ -38,6 +38,8 @@
 
 ### Замеры по FPS на iPhone 13 mini:
 
+![IMG_1265.PNG](images/IMG_1265.png)
+
 ![IMG_1263.PNG](images/IMG_1263.png)
 
 ![IMG_1264.PNG](images/IMG_1264.png)
