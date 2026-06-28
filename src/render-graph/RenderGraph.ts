@@ -83,7 +83,6 @@ export class RenderGraph {
     const passEmissive = prePass.getTextureNode('emissive');
     const passVelocity = prePass.getTextureNode('velocity');
 
-
     prePass.getTexture('output').type = UnsignedByteType;
     prePass.getTexture('emissive').type = UnsignedByteType;
 
@@ -102,7 +101,7 @@ export class RenderGraph {
     aoPass.scale.value = aoParams.scale;
     aoPass.radius.value = aoParams.radius;
     aoPass.samples.value = aoParams.samples;
-    aoPass.thickness.value = aoParams.samples;
+    aoPass.thickness.value = aoParams.thickness;
     aoPass.distanceFallOff.value = aoParams.distanceFallOff;
     aoPass.distanceExponent.value = aoParams.distanceExponent;
     aoPass.useTemporalFiltering = aoParams.useTemporalFiltering;

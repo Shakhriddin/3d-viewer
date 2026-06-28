@@ -44,6 +44,8 @@ export class SceneEnvironment {
         spotLight.shadow.mapSize.height = light.shadowParams.height;
         spotLight.shadow.bias = light.shadowParams.bias ?? 0;
         spotLight.shadow.normalBias = light.shadowParams.normalBias ?? 0;
+        spotLight.shadow.autoUpdate = false;
+        spotLight.shadow.needsUpdate = true;
       }
 
       if (light.target) {
